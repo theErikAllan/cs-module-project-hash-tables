@@ -10,6 +10,9 @@ class HashTableEntry:
     
     def __str__(self):
         return "'{}': '{}'".format(self.key, self.value)
+    
+    def __repr__(self):
+        return f"HashTableEntry({repr(self.key)},{repr(self.value)})"
 
 
 # Hash table can't have fewer than this many slots
@@ -66,7 +69,7 @@ class HashTable:
         """
         # Your code here
         hash = 5381
-        byte_array = key.encode('utf-8')
+        byte_array = str(key).encode('utf-8')
 
         for byte in byte_array:
             # the modulus keeps it 32-bit, python ints don't overflow
@@ -91,6 +94,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.hash_index(key)
+        self.bucket[index] = value
 
     def delete(self, key):
         """
@@ -101,6 +106,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # self.put(key, None)
+        index = self.hash_index(key)
+        self.bucket[index] = None
+
 
     def get(self, key):
         """
@@ -111,6 +120,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.hash_index(key)
+        return self.bucket[index]
 
     def resize(self, new_capacity):
         """
