@@ -7,10 +7,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-    
-    def __str__(self):
-        return "'{}': '{}'".format(self.key, self.value)
-    
+
     def __repr__(self):
         return f"HashTableEntry({repr(self.key)},{repr(self.value)})"
 
@@ -85,43 +82,123 @@ class HashTable:
         # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
+    # def put(self, key, value):
+    #     """
+    #     Store the value with the given key.
+
+    #     Hash collisions should be handled with Linked List Chaining.
+
+    #     Implement this.
+    #     """
+    #     # Your code here
+    #     index = self.hash_index(key)
+    #     self.bucket[index] = value
+
     def put(self, key, value):
-        """
-        Store the value with the given key.
-
-        Hash collisions should be handled with Linked List Chaining.
-
-        Implement this.
-        """
-        # Your code here
+        # First, we determine the index of our desired key:value pair
         index = self.hash_index(key)
-        self.bucket[index] = value
+
+        # Then we create a new node with the desired key:value pair
+        new_node = HashTableEntry(key, value)
+
+        # We look up the node at the index and set existing_node to it
+        existing_node = self.bucket[index]
+
+        # This if statement checks to see if a node exists at [index]
+        if existing_node:
+            # If there is already a node at [index], we create a variable for the last node and set it to None
+            last_node = None
+
+            # Now we loop through the linked list
+            while existing_node:
+                # We check the key at each node to see if it's equal to the key being passed in
+                if existing_node.key == key:
+                    # If the key of existing_node is equal to the key being passed in, we have found the right key so we set the value of that node to be the value being passed in
+                    existing_node.value = value
+                    return
+
+                # Then we set last_node to the node we're inserting and change existing_node to point to its next node, thus moving us down the linked list
+                last_node = existing_node
+                existing_node = existing_node.next
+
+            # Once we've exited the while loop, we set the next node of last_node to be the node we're inserting
+            last_node.next = new_node
+        else:
+            # If existing_node doesn't exist (aka is None), then [index] is empty so we simply insert new_node
+            self.bucket[index] = new_node
+
+    # def delete(self, key):
+    #     """
+    #     Remove the value stored with the given key.
+
+    #     Print a warning if the key is not found.
+
+    #     Implement this.
+    #     """
+    #     # Your code here
+    #     # self.put(key, None)
+    #     index = self.hash_index(key)
+    #     self.bucket[index] = None
 
     def delete(self, key):
-        """
-        Remove the value stored with the given key.
-
-        Print a warning if the key is not found.
-
-        Implement this.
-        """
-        # Your code here
-        # self.put(key, None)
+        # First we hash the key to get the index
         index = self.hash_index(key)
-        self.bucket[index] = None
 
+        # Then we create a variable for the node we want to delete
+        existing_node = self.bucket[index]
+
+        # Next, we write an if statement to delete the node in question
+        if existing_node:
+            # We create a variable for the last node and set it to None
+            last_node = None
+            # Then we write a while loop that will run as long as the node in question exists
+            while existing_node:
+                # In our while loop we have another if statement checking the key of the current node to the key being passed in
+                if existing_node.key == key:
+                    # If there's a match, we have an if statement to check if last_node exists
+                    if last_node:
+                        # If last_node points to a node, we set last_node's next node to be the next node of the current node, partly removing the current node from the linked list
+                        last_node.next = existing_node.next
+                    else:
+                        # If last_node doesn't point to anything, we set the node at the index in question to be the next node of the node we're trying to delete, partly removing the current node from the linked list
+                        self.bucket[index] = existing_node.next
+
+                # Finally, we set last_node to the node we're trying to delete, and then we set existing_node to existing_node.next, which in this case will be None
+                last_node = existing_node
+                existing_node = existing_node.next
+
+    # def get(self, key):
+    #     """
+    #     Retrieve the value stored with the given key.
+
+    #     Returns None if the key is not found.
+
+    #     Implement this.
+    #     """
+    #     # Your code here
+    #     index = self.hash_index(key)
+    #     return self.bucket[index]
 
     def get(self, key):
-        """
-        Retrieve the value stored with the given key.
-
-        Returns None if the key is not found.
-
-        Implement this.
-        """
-        # Your code here
+        # First, we hash the key to determine the index our desired key is stored
         index = self.hash_index(key)
-        return self.bucket[index]
+
+        # Then we set existing_node to equal the node at self.bucket[index]
+        existing_node = self.bucket[index]
+
+        # Next, we write an if statement checking if existing_node exists
+        if existing_node:
+            # If it does exist, we have a while loop that kicks in as long as existing_node continues existing in existence
+            while existing_node:
+                # In the while loop we are checking the key of each node to find the one that matches the key we're trying to find
+                if existing_node.key == key:
+                    # When we find the node that matches the key we're looking for, we return the value of the node
+                    return existing_node.value
+                # If the matching key is not found, we set existing_node to its next node and we continue down the linked list
+                existing_node = existing_node.next
+
+        # If the desired key cannot be found, we return None
+        return None
 
     def resize(self, new_capacity):
         """
