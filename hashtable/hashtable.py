@@ -152,6 +152,7 @@ class HashTable:
     #     index = self.hash_index(key)
     #     self.bucket[index] = None
 
+
     def delete(self, key):
         # First we hash the key to get the index
         index = self.hash_index(key)
@@ -224,13 +225,9 @@ class HashTable:
         # Your code here
         # First, we make a copy of the current buckets
         array_copy = self.bucket_array
-        print("This is self.bucket_array: ", self.bucket_array)
 
         # Then we set the current capacity to be the new capacity
-        print("This is self.capacity: ", self.capacity)
-        print("This is new_capacity: ", new_capacity)
         self.capacity = new_capacity
-        print("This is self.capacity: ", self.capacity)
 
         # After making a copy of the current buckets, we overwrite the current buckets with an array equal to the new capacity
         self.bucket_array = [None] * self.capacity
@@ -252,7 +249,8 @@ class HashTable:
                     current_node = current_node.next
                 # Once we reach the tail of the linked list, we set the empty index to 
                 self.put(current_node.key, current_node.value)
-        print("This is self.bucket_array: ", self.bucket_array)
+        
+        print("this is bucket array: ", self.bucket_array)
         return self.bucket_array
 
 
