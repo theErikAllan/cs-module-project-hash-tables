@@ -26,8 +26,9 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-        self.bucket = [None for i in range(capacity)]
+        self.bucket_array = [None for i in range(capacity)]
         self.capacity = capacity
+        self.count = 0
 
     def get_num_slots(self):
         """
@@ -40,6 +41,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # print("This is the number of slots: ", self.capacity)
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -48,6 +51,11 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        f_load = self.count / self.capacity
+        print("This is capacity: ", self.capacity)
+        print("This is load factor: ", f_load)
+        return f_load
+
 
     def fnv1(self, key):
         """
@@ -101,31 +109,35 @@ class HashTable:
         # Then we create a new node with the desired key:value pair
         new_node = HashTableEntry(key, value)
 
-        # We look up the node at the index and set existing_node to it
-        existing_node = self.bucket[index]
+        # We look up the node at the index and set current_node to it
+        current_node = self.bucket_array[index]
 
         # This if statement checks to see if a node exists at [index]
-        if existing_node:
-            # If there is already a node at [index], we create a variable for the last node and set it to None
-            last_node = None
+        if current_node:
+            # If there is already a node at [index], we create a variable for the head node and set it to None
+            head_node = None
 
             # Now we loop through the linked list
-            while existing_node:
+            while current_node:
                 # We check the key at each node to see if it's equal to the key being passed in
-                if existing_node.key == key:
-                    # If the key of existing_node is equal to the key being passed in, we have found the right key so we set the value of that node to be the value being passed in
-                    existing_node.value = value
+                if current_node.key == key:
+                    # If the key of current_node is equal to the key being passed in, we have found the right key so we set the value of that node to be the value being passed in
+                    current_node.value = value
                     return
 
-                # Then we set last_node to the node we're inserting and change existing_node to point to its next node, thus moving us down the linked list
-                last_node = existing_node
-                existing_node = existing_node.next
+                # Then we set head_node to the node we're inserting and change current_node to point to its next node, thus moving us down the linked list
+                head_node = current_node
+                current_node = current_node.next            
 
-            # Once we've exited the while loop, we set the next node of last_node to be the node we're inserting
-            last_node.next = new_node
+            # Once we've exited the while loop, we set the next node of head to be the node we're inserting
+            head_node.next = new_node
+            self.count += 1
+            # print("This is count: ", self.count)
         else:
-            # If existing_node doesn't exist (aka is None), then [index] is empty so we simply insert new_node
-            self.bucket[index] = new_node
+            # If current_node doesn't exist (aka is None), then [index] is empty so we simply insert new_node
+            self.bucket_array[index] = new_node
+            self.count += 1
+            # print("This is count: ", self.count)
 
     # def delete(self, key):
     #     """
@@ -145,27 +157,29 @@ class HashTable:
         index = self.hash_index(key)
 
         # Then we create a variable for the node we want to delete
-        existing_node = self.bucket[index]
+        current_node = self.bucket_array[index]
 
         # Next, we write an if statement to delete the node in question
-        if existing_node:
+        if current_node:
             # We create a variable for the last node and set it to None
             last_node = None
             # Then we write a while loop that will run as long as the node in question exists
-            while existing_node:
+            while current_node:
                 # In our while loop we have another if statement checking the key of the current node to the key being passed in
-                if existing_node.key == key:
+                if current_node.key == key:
                     # If there's a match, we have an if statement to check if last_node exists
                     if last_node:
                         # If last_node points to a node, we set last_node's next node to be the next node of the current node, partly removing the current node from the linked list
-                        last_node.next = existing_node.next
+                        last_node.next = current_node.next
                     else:
                         # If last_node doesn't point to anything, we set the node at the index in question to be the next node of the node we're trying to delete, partly removing the current node from the linked list
-                        self.bucket[index] = existing_node.next
+                        self.bucket_array[index] = current_node.next
 
-                # Finally, we set last_node to the node we're trying to delete, and then we set existing_node to existing_node.next, which in this case will be None
-                last_node = existing_node
-                existing_node = existing_node.next
+                # Finally, we set last_node to the node we're trying to delete, and then we set current_node to current_node.next, which in this case will be None
+                last_node = current_node
+                current_node = current_node.next
+                self.count -= 1
+                # print("This is count: ", self.count)
 
     # def get(self, key):
     #     """
@@ -183,19 +197,19 @@ class HashTable:
         # First, we hash the key to determine the index our desired key is stored
         index = self.hash_index(key)
 
-        # Then we set existing_node to equal the node at self.bucket[index]
-        existing_node = self.bucket[index]
+        # Then we set current_node to equal the node at self.bucket[index]
+        current_node = self.bucket_array[index]
 
-        # Next, we write an if statement checking if existing_node exists
-        if existing_node:
-            # If it does exist, we have a while loop that kicks in as long as existing_node continues existing in existence
-            while existing_node:
+        # Next, we write an if statement checking if current_node exists
+        if current_node:
+            # If it does exist, we have a while loop that kicks in as long as current_node continues existing in existence
+            while current_node:
                 # In the while loop we are checking the key of each node to find the one that matches the key we're trying to find
-                if existing_node.key == key:
+                if current_node.key == key:
                     # When we find the node that matches the key we're looking for, we return the value of the node
-                    return existing_node.value
-                # If the matching key is not found, we set existing_node to its next node and we continue down the linked list
-                existing_node = existing_node.next
+                    return current_node.value
+                # If the matching key is not found, we set current_node to its next node and we continue down the linked list
+                current_node = current_node.next
 
         # If the desired key cannot be found, we return None
         return None
@@ -208,6 +222,38 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # First, we make a copy of the current buckets
+        array_copy = self.bucket_array
+        print("This is self.bucket_array: ", self.bucket_array)
+
+        # Then we set the current capacity to be the new capacity
+        print("This is self.capacity: ", self.capacity)
+        print("This is new_capacity: ", new_capacity)
+        self.capacity = new_capacity
+        print("This is self.capacity: ", self.capacity)
+
+        # After making a copy of the current buckets, we overwrite the current buckets with an array equal to the new capacity
+        self.bucket_array = [None] * self.capacity
+
+        # We also set the count back to zero so we can recalculate the load factor of the resized hashtable
+        self.count = 0
+
+        # Then we write a for loop to go through the old buckets
+        for index in range(len(array_copy)):
+            # For each index, we have an if statement that will only run if the index we're looking at in the old array is not None
+            if array_copy[index] is not None:
+                # If there's a node at the index in question, we store it in current_node
+                current_node = array_copy[index]
+                # And then we write a while loop that will run until it reaches the end of the linked list
+                while current_node.next is not None:
+                    # For each node, we use self.put() to insert each node from the old buckets into the new buckets
+                    self.put(current_node.key, current_node.value)
+                    # To traverse the linked list, we set the current_node to be its next node
+                    current_node = current_node.next
+                # Once we reach the tail of the linked list, we set the empty index to 
+                self.put(current_node.key, current_node.value)
+        print("This is self.bucket_array: ", self.bucket_array)
+        return self.bucket_array
 
 
 if __name__ == "__main__":
@@ -225,6 +271,9 @@ if __name__ == "__main__":
     ht.put("line_10", "Long time the manxome foe he sought--")
     ht.put("line_11", "So rested he by the Tumtum tree")
     ht.put("line_12", "And stood awhile in thought.")
+
+    ht.get_load_factor()
+    ht.get_num_slots()
 
     print("")
 
