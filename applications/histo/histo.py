@@ -10,6 +10,8 @@ def histo(file):
         for character in word:
             if character.isalnum():
                 new_word += character
+        
+        # longest_word = ?
 
         if new_word in counts:
             counts[new_word] += 1
@@ -24,7 +26,9 @@ def histo(file):
     for element in words:
         # print("Word: ", element)
         hashes = "#" * counts[element]
-        print(f'{element} {hashes}')
+        # print(f'{element} {hashes}')
+        spaces = " " * 8
+        print(f'{element}: {spaces} {hashes}')
 
 
 if __name__ == "__main__":

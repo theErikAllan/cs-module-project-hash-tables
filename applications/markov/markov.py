@@ -9,6 +9,15 @@ stop_chars = [".", "!", "?"]
 with open("input.txt") as f:
     words = f.read()
 
+[(One), (thing), (was)]
+   |       |       |
+(thing)  (was)  (certain)
+   |
+ (paw)
+
+ # Need if statement that doesn't add word after if word[-1] == .
+
+
 # TODO: analyze which words can follow other words
 # Your code here
     for word in words.split():
