@@ -1,5 +1,8 @@
 # Your code here
+import math
+import random
 
+cache = {}
 
 def slowfun_too_slow(x, y):
     v = math.pow(x, y)
@@ -15,8 +18,17 @@ def slowfun(x, y):
     output, but completes quickly instead of taking ages to run.
     """
     # Your code here
+    # First, we create a variable for the cache key and point it to a tuple of the values being passed in
+    # This allows us to make a key using a combination of values
+    key = (x, y)
 
-
+    # Then we write a conditional to check if the values being passed in have already been calculated and stored in cache
+    if key not in cache:
+        # If the key is not cached already, we calculate the result and store it in cache
+        cache[key] = slowfun_too_slow(x, y)
+    
+    # Lastly, after the result has been cached, we return the correct value for the values passed in
+    return cache[key]
 
 # Do not modify below this line!
 
