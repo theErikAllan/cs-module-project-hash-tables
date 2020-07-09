@@ -56,7 +56,7 @@ decide to stop.
 2. Analyze the text, building up the dataset of which words can follow
    particular words.
 
-   (Hint: leave duplicates in for this part. If a the word `and` is seen
+   (Hint: leave duplicates in for this part. If the word `and` is seen
    following the word `goats` multiple times, include all those `and`s.
    It'll give more convincing results because it is modelling the
    _frequency_ of _how often_ a word follows another word.)

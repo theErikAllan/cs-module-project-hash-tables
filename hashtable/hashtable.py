@@ -2,11 +2,14 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
         self.next = None
-
+    
+    def __repr__(self):
+        return f"HashTableEntry({repr(self.key)},{repr(self.value)})"
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -14,7 +17,7 @@ MIN_CAPACITY = 8
 
 class HashTable:
     """
-    A hash table that with `capacity` buckets
+    A hash table with `capacity` buckets
     that accepts string keys
 
     Implement this.
@@ -22,7 +25,9 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-
+        self.capacity = capacity
+        self.storage = [None] * capacity
+        self.count = 0
 
     def get_num_slots(self):
         """
@@ -35,7 +40,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -44,9 +49,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        load_factor = (self.count/self.capacity)
+        return load_factor
 
-
-    def fnv1(self, key):
+    def fnv1(self, key, seed=0):
         """
         FNV-1 Hash, 64-bit
 
@@ -54,7 +60,16 @@ class HashTable:
         """
 
         # Your code here
+        # Constants
+        FNV_prime = 1099511628211
+        offset_basis = 14695981039346656037
 
+        # FNV-1a Hash Function
+        hash = offset_basis + seed
+        for char in key:
+            hash = hash * FNV_prime
+            hash = hash ^ ord(char)
+        return hash
 
     def djb2(self, key):
         """
@@ -64,14 +79,13 @@ class HashTable:
         """
         # Your code here
 
-
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -82,7 +96,40 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # We need to find the slot where the passed in value will be stored
+        slot = self.hash_index(key)
 
+        # Then we create a variable to point to the element in the slot
+        current_node = self.storage[slot]
+
+        # We create a node using the key:value pair being passed in
+        new_node = HashTableEntry(key, value)
+
+        # We use a conditional to check if the index is already occupied
+        if current_node:
+            # If so, we establish a head node so we can traverse the linked list in said index/slot
+            prev_node = None
+            # We use a while loop to traverse the bucket array
+            while current_node:
+                # Then we check to see if the occupied element's key matches the key being passed in
+                if current_node.key == key:
+                    # If it does, then we update the value of the key:value pair
+                    current_node.value = value
+                    return
+                # If it does not match, we change the head node variable to point to the current node
+                prev_node = current_node
+                # And we change the current node variable to point to the current node's next node
+                current_node = current_node.next
+                # So we traverse
+            # After the while loop finishes, there is no duplicate key, so we add the new node to the end of the bucket
+            # And increment the counter (for load factor calculation)
+            prev_node.next = new_node
+            self.count += 1
+        # If the current node points to None, we pass the new node into the bucket
+        # And increment the counter (for load factor calculation)
+        else:
+            self.storage[slot] = new_node
+            self.count += 1
 
     def delete(self, key):
         """
@@ -93,7 +140,31 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        # First, we hash the key to get the slot containing the node we want to delete
+        slot = self.hash_index(key)
+        # Then we create a variable to point to the node in that slot
+        current_node = self.storage[slot]
+        # We use a conditional statement to check if the contents at slot exist
+        if current_node:
+            # Conditional to check if the first node is the node we're looking for
+            if current_node.key == key:
+                self.storage[slot] = current_node.next
+                return
+            # We create a variable to point to the previous node and set it to None
+            prev_node = None
+            # If something exists in that slot, we use a while loop to traverse its contents
+            while current_node:
+                # At each node, we check to see if the node's key matches the key we're looking for
+                if current_node.key == key:
+                    # If we find the node with a matching key, we point the previous node's next node to the current node's next node
+                    prev_node.next = current_node.next
+                    return
+                # If it doesn't, we increment the previous node and current node to the next nodes
+                prev_node = current_node
+                current_node = current_node.next
+        # If something doesn't exist in that slot, we return None
+        else:
+            return None
 
     def get(self, key):
         """
@@ -104,7 +175,26 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # First, we find the slot where the node in question could be
+        slot = self.hash_index(key)
 
+        # Then we create a variable, current_node, to point to the contents of the slot
+        current_node = self.storage[slot]
+
+        # We use a conditional to check if the current node is pointing to a node
+        if current_node:
+            # If it's pointing to a node, we want to traverse the contents (linked list) until we find the key we are looking for
+            # So we use a while loop
+            while current_node:
+                # At each node, we have a conditional to check if the node's key matches the key being passed in
+                if current_node.key == key:
+                    # If we find a match, we return the node's value
+                    return current_node.value
+                # If the current node doesn't contain the droid we are looking for, we increment the current_node to current_node.next, traversing the linked list as a result
+                current_node = current_node.next
+        # If we don't find a match, we return None
+        else:
+            return None
 
     def resize(self, new_capacity):
         """
@@ -114,7 +204,22 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # First, we create a copy of the current list
+        storage_copy = self.storage
 
+        # Then we update self.storage with the new capacity
+        self.capacity = new_capacity
+        self.storage = [None] * self.capacity
+
+        # We iterate through the copy and rehash the contents into the updated self.storage
+        for slot in range(len(storage_copy)):
+            if storage_copy[slot]:
+                current_node = storage_copy[slot]
+                while current_node:
+                    self.put(current_node.key, current_node.value)
+                    current_node = current_node.next
+        
+        return self.get_load_factor()
 
 
 if __name__ == "__main__":
